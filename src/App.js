@@ -41,46 +41,57 @@ function App() {
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  function handleClear() {
-    dispatch({ type: 'clear' });
-  }
-
-  function handleShuffle() {
-    dispatch({ type: 'shuffle' });
-  }
-
-  function handlePick() {
-    dispatch({ type: 'pick' });
-  }
-
   const [textarea, setTextarea] = useState('');
 
   function handleChange(event) {
     setTextarea(event.target.value);
   }
-  function handleAdd() {
-    const newParticipants = textarea.split(',').map(item => item.trim());
-    setTextarea('');
-    dispatch({ type: 'add', payload: newParticipants });
+
+  const [checked, setChecked] = useState(false);
+
+  function handleCheckbox() {
+    setChecked(!checked);
   }
+
+  function addProbToParticipants() {
+    const indexSum = (state.participants.length - 1) * state.participants.length / 2;
+    const participantsWithProb = state.participants.map((participant, index) => `${participant} ${(index / indexSum * 100).toFixed(2)}%`);
+    return participantsWithProb.join(', ');
+  }
+
+  function handleButtons(event) {
+    const text = event.target.innerText.toLowerCase();
+    if (text === 'add') {
+      const newParticipants = textarea.split(',').map(item => item.trim());
+      setTextarea('');
+      dispatch({ type: text, payload: newParticipants });
+    } else {
+      dispatch({ type: text });
+    }
+  }
+
   return (
     <div className="App">
       <h1>Not so random picker</h1>
       <div className='queue'>
-        {state.participants.length > 0 ?
-          state.participants.join(', ') :
-          'Add some participants'}
+        {state.participants.length === 0 ? 'Add some participants' :
+          checked ? addProbToParticipants() :
+            state.participants.join(', ')}
       </div>
       <div className='queue'>
         <span>Pick: </span>{state.pick}
       </div>
       <div>
-        <button onClick={handleClear}>Clear</button>
-        <button onClick={handleShuffle}>Shuffle</button>
-        <button onClick={handlePick}>Pick</button>
+        <button onClick={handleButtons}>Clear</button>
+        <button onClick={handleButtons}>Shuffle</button>
+        <button onClick={handleButtons}>Pick</button>
+        <label>
+          show probabilities:
+          <input type="checkbox" checked={checked} onChange={handleCheckbox} />
+        </label>
       </div>
-      <textarea value={textarea} onChange={handleChange} />
-      <button onClick={handleAdd}>Add</button>
+      <textarea value={textarea} onChange={handleChange} placeholder='Add participants, seperated with commas' />
+      <button onClick={handleButtons}>Add</button>
     </div>
   );
 }
