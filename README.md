@@ -19,3 +19,5 @@ Use the Pick-button to pick someone from the list. They'll be moved the the star
 Use the Clear-button to clear the list.
 
 Use the Shuffle-button to shuffle the list and make the order random.
+
+Use the checkbox to show/hide the probabilities of getting picked in percentage.
