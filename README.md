@@ -1,6 +1,6 @@
 ## A weighted random picker
 
-The idea is to a weighted random picker, and after someone got picked, their chance of getting picked becomes smaller. [gh page to try out](https://tunhuang.github.io/weighted-random-picker/)
+The idea is to have a weighted random picker, and after someone got picked, their chance of getting picked becomes smaller. [gh page to try out](https://tunhuang.github.io/weighted-random-picker/)
 
 The chance of getting picked is determined by the index in the array and the sum of the indices.
 
@@ -12,9 +12,9 @@ After someone got picked, they'll be moved to index 0, and everyone previously b
 
 ## How to use
 
-Add the names of the participants, seperated with commas, with the textarea and the Add-button. You can make the chance, that certain participants getting picked the first time, bigger by putting their names at the end of the list. Or you can just put them in in random order.
+Add the names of the participants, seperated with commas, with the textarea and the Add-button. You can make the chance, that certain participants getting picked the first time, bigger by putting their names at the end of the list. Or you can just put them in a random order.
 
-Use the Pick-button to pick someone from the list. They'll be moved the the start of the list (index 0 of the array).
+Use the Pick-button to pick someone from the list. They'll be moved to the start of the list (index 0 of the array).
 
 Use the Clear-button to clear the list.
 
