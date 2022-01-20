@@ -1,70 +1,21 @@
-# Getting Started with Create React App
+## A weighted random picker
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+The idea is to a weighted random picker, and after someone got picked, their chance of getting picked becomes smaller. [gh page to try out](https://tunhuang.github.io/weighted-random-picker/)
 
-## Available Scripts
+The chance of getting picked is determined by the index in the array and the sum of the indices.
 
-In the project directory, you can run:
+For example we have a class with 16 students. We put their name in the array. The sum of the indices (0 + 1 + 2 ... + 15) is 120. The chance of getting picked is 0/120, 1/120, 2/120... respectively
 
-### `npm start`
+0.00%, 0.83%, 1.67%, 2.50%, 3.33%, 4.17%, 5.00%, 5.83%, 6.67%, 7.50%, 8.33%, 9.17%, 10.00%, 10.83%, 11.67%
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+After someone got picked, they'll be moved to index 0, and everyone previously behind them moves one index forward. It means that it's impossible that someone gets picked twice in a row. And the chance of someone getting picked increases with time till they get picked.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## How to use
 
-### `npm test`
+Add the names of the participants, seperated with commas, with the textarea and the Add-button. You can make the chance, that certain participants getting picked the first time, bigger by putting their names at the end of the list. Or you can just put them in in random order.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Use the Pick-button to pick someone from the list. They'll be moved the the start of the list (index 0 of the array).
 
-### `npm run build`
+Use the Clear-button to clear the list.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Use the Shuffle-button to shuffle the list and make the order random.
