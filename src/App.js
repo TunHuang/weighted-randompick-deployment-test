@@ -2,6 +2,24 @@ import './App.css';
 import { useReducer, useState } from 'react';
 
 function App() {
+  const [textarea, setTextarea] = useState('');
+
+  function handleTextarea(event) {
+    setTextarea(event.target.value);
+  }
+
+  const [checked, setChecked] = useState(false);
+
+  function handleCheckbox() {
+    setChecked(!checked);
+  }
+
+  const [radio, setRadio] = useState('linear');
+
+  function handleRadio(event) {
+    setRadio(event.target.value);
+  }
+
   const initialState = {
     pick: '',
     participants: []
@@ -13,12 +31,17 @@ function App() {
       case 'clear':
         return { pick: '', participants: [] };
       case 'pick':
-        const indexSum = (state.participants.length - 1) * state.participants.length / 2;
+        const maxIndex = state.participants.length - 1;
+        const indexSum = radio === 'linear' ? maxIndex * (maxIndex + 1) / 2 :
+                         radio === 'quadratic' ? maxIndex * (maxIndex + 1) * (2 * maxIndex + 1) / 6 :
+                         (maxIndex * (maxIndex + 1) / 2) ** 2;
         let randomFromSum = Math.floor(Math.random() * indexSum) + 1;
         let i = 0;
         while (randomFromSum > 0) {
           i++;
-          randomFromSum -= i;
+          randomFromSum -= radio === 'linear' ? i :
+                           radio === 'quadratic' ? i**2 :
+                           i**3;
         }
         const newPick = state.participants[i];
         const newParticipants = [
@@ -38,24 +61,19 @@ function App() {
         throw new Error();
     }
   }
-
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const [textarea, setTextarea] = useState('');
-
-  function handleChange(event) {
-    setTextarea(event.target.value);
-  }
-
-  const [checked, setChecked] = useState(false);
-
-  function handleCheckbox() {
-    setChecked(!checked);
-  }
-
   function addProbToParticipants() {
-    const indexSum = (state.participants.length - 1) * state.participants.length / 2;
-    const participantsWithProb = state.participants.map((participant, index) => `${participant} ${(index / indexSum * 100).toFixed(2)}%`);
+    const maxIndex = state.participants.length - 1;
+    const indexSum = radio === 'linear' ? maxIndex * (maxIndex + 1) / 2 :
+                     radio === 'quadratic' ? maxIndex * (maxIndex + 1) * (2 * maxIndex + 1) / 6 :
+                     (maxIndex * (maxIndex + 1) / 2) ** 2;
+    const participantsWithProb = state.participants.map((participant, index) => {
+      const numerator = radio === 'linear' ? index :
+                        radio === 'quadratic' ? index**2 :
+                        index**3;
+      return `${participant} ${(numerator / indexSum * 100).toFixed(2)}%`
+    });
     return participantsWithProb.join(', ');
   }
 
@@ -90,7 +108,37 @@ function App() {
           <input type="checkbox" checked={checked} onChange={handleCheckbox} />
         </label>
       </div>
-      <textarea value={textarea} onChange={handleChange} placeholder='Add participants, seperated with commas' />
+      <div onChange={handleRadio}>
+        distribution:
+        <label>
+          <input
+            type="radio"
+            name="dist"
+            value="linear"
+            checked={radio === 'linear'}
+          />
+          linear
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="dist"
+            value="quadratic"
+            checked={radio === 'quadratic'}
+          />
+          quadratic
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="dist"
+            value="cubic"
+            checked={radio === 'cubic'}
+          />
+          cubic
+        </label>
+      </div>
+      <textarea value={textarea} onChange={handleTextarea} placeholder='Add participants, seperated with commas' />
       <button onClick={handleButtons}>Add</button>
     </div>
   );
