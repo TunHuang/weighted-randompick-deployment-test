@@ -14,10 +14,10 @@ function App() {
     setChecked(!checked);
   }
 
-  const [radio, setRadio] = useState('linear');
+  const [radio, setRadio] = useState(1);
 
   function handleRadio(event) {
-    setRadio(event.target.value);
+    setRadio(+event.target.value);
   }
 
   const initialState = {
@@ -32,16 +32,12 @@ function App() {
         return { pick: '', participants: [] };
       case 'pick':
         const maxIndex = state.participants.length - 1;
-        const indexSum = radio === 'linear' ? maxIndex * (maxIndex + 1) / 2 :
-                         radio === 'quadratic' ? maxIndex * (maxIndex + 1) * (2 * maxIndex + 1) / 6 :
-                         (maxIndex * (maxIndex + 1) / 2) ** 2;
+        const indexSum = calcSum(maxIndex, radio);
         let randomFromSum = Math.floor(Math.random() * indexSum) + 1;
         let i = 0;
         while (randomFromSum > 0) {
           i++;
-          randomFromSum -= radio === 'linear' ? i :
-                           radio === 'quadratic' ? i**2 :
-                           i**3;
+          randomFromSum -= i ** radio;
         }
         const newPick = state.participants[i];
         const newParticipants = [
@@ -63,16 +59,24 @@ function App() {
   }
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  function calcSum(n, order) {
+    switch (order) {
+      case 1:
+        return n * (n + 1) / 2;
+      case 2:
+        return n * (n + 1) * (2 * n + 1) / 6;
+      case 3:
+        return (n * (n + 1) / 2) ** 2;
+      default:
+        throw new Error();
+    }
+  }
+
   function addProbToParticipants() {
     const maxIndex = state.participants.length - 1;
-    const indexSum = radio === 'linear' ? maxIndex * (maxIndex + 1) / 2 :
-                     radio === 'quadratic' ? maxIndex * (maxIndex + 1) * (2 * maxIndex + 1) / 6 :
-                     (maxIndex * (maxIndex + 1) / 2) ** 2;
+    const indexSum = calcSum(maxIndex, radio);
     const participantsWithProb = state.participants.map((participant, index) => {
-      const numerator = radio === 'linear' ? index :
-                        radio === 'quadratic' ? index**2 :
-                        index**3;
-      return `${participant} ${(numerator / indexSum * 100).toFixed(2)}%`
+      return `${participant} ${(index ** radio / indexSum * 100).toFixed(2)}%`
     });
     return participantsWithProb.join(', ');
   }
@@ -114,8 +118,8 @@ function App() {
           <input
             type="radio"
             name="dist"
-            value="linear"
-            checked={radio === 'linear'}
+            value="1"
+            checked={radio === 1}
           />
           linear
         </label>
@@ -123,8 +127,8 @@ function App() {
           <input
             type="radio"
             name="dist"
-            value="quadratic"
-            checked={radio === 'quadratic'}
+            value="2"
+            checked={radio === 2}
           />
           quadratic
         </label>
@@ -132,8 +136,8 @@ function App() {
           <input
             type="radio"
             name="dist"
-            value="cubic"
-            checked={radio === 'cubic'}
+            value="3"
+            checked={radio === 3}
           />
           cubic
         </label>
