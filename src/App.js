@@ -100,7 +100,7 @@ function App() {
           checked ? addProbToParticipants() :
             state.participants.join(', ')}
       </div>
-      <div className='queue'>
+      <div className='pick'>
         <span>Pick: </span>{state.pick}
       </div>
       <div>
@@ -144,6 +144,7 @@ function App() {
       </div>
       <textarea value={textarea} onChange={handleTextarea} placeholder='Add participants, seperated with commas' />
       <button onClick={handleButtons}>Add</button>
+      <p>Descriptions and source on <a href="https://github.com/TunHuang/weighted-random-picker">Github</a></p>
     </div>
   );
 }
