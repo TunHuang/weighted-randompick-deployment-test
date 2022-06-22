@@ -11,20 +11,26 @@ function App() {
   const [checked, setChecked] = useState(false);
 
   function handleCheckbox() {
-    setChecked(!checked);
+    setChecked(checked => !checked);
   }
 
-  const [radio, setRadio] = useState(1);
+  const radioFromLS = localStorage.getItem('radio');
+
+  const [radio, setRadio] = useState(radioFromLS ? +radioFromLS : 1);
 
   function handleRadio(event) {
     setRadio(+event.target.value);
   }
 
-  const fromLocalStorage = localStorage.getItem('participants');
+  useEffect(() => {
+    localStorage.setItem('radio', radio);
+  }, [radio]);
+
+  const participantsFromLS = localStorage.getItem('participants');
 
   const initialState = {
     pick: '',
-    participants: fromLocalStorage ? JSON.parse(fromLocalStorage) : []
+    participants: participantsFromLS ? JSON.parse(participantsFromLS) : []
   };
   function reducer(state, action) {
     switch (action.type) {
