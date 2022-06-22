@@ -1,5 +1,5 @@
 import './App.css';
-import { useReducer, useState } from 'react';
+import { useReducer, useState, useEffect } from 'react';
 
 function App() {
   const [textarea, setTextarea] = useState('');
@@ -20,9 +20,11 @@ function App() {
     setRadio(+event.target.value);
   }
 
+  const fromLocalStorage = localStorage.getItem('participants');
+
   const initialState = {
     pick: '',
-    participants: []
+    participants: fromLocalStorage ? JSON.parse(fromLocalStorage) : []
   };
   function reducer(state, action) {
     switch (action.type) {
@@ -58,6 +60,11 @@ function App() {
     }
   }
   const [state, dispatch] = useReducer(reducer, initialState);
+
+  useEffect(() => {
+    const participantsString = JSON.stringify(state.participants);
+    localStorage.setItem('participants', participantsString);
+  }, [state]);
 
   function calcSum(n, order) {
     switch (order) {
