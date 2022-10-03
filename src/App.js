@@ -40,17 +40,6 @@ function App() {
     localStorage.setItem('radio', radio);
   }, [radio]);
 
-  useEffect(() => {
-    const participantsFromLS = localStorage.getItem('participants');
-    if (participantsFromLS) {
-      dispatch({ type: 'add', payload: JSON.parse(participantsFromLS) });
-    }
-  }, []);
-
-  const initialState = {
-    pick: '',
-    participants: []
-  };
   function reducer(state, action) {
     switch (action.type) {
       case 'add':
@@ -84,7 +73,12 @@ function App() {
         throw new Error();
     }
   }
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, null, () => {
+    const participantsFromLS = localStorage.getItem('participants');
+    return participantsFromLS
+      ? { pick: '', participants: JSON.parse(participantsFromLS) }
+      : { pick: '', participants: [] };
+  });
 
   useEffect(() => {
     const participantsString = JSON.stringify(state.participants);
