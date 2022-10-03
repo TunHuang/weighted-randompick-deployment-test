@@ -1,6 +1,19 @@
 import './App.css';
 import { useReducer, useState, useEffect } from 'react';
 
+function calcSum(n, order) {
+  switch (order) {
+    case 1:
+      return n * (n + 1) / 2;
+    case 2:
+      return n * (n + 1) * (2 * n + 1) / 6;
+    case 3:
+      return (n * (n + 1) / 2) ** 2;
+    default:
+      throw new Error();
+  }
+}
+
 function App() {
   const [textarea, setTextarea] = useState('');
 
@@ -14,23 +27,30 @@ function App() {
     setChecked(checked => !checked);
   }
 
-  const radioFromLS = localStorage.getItem('radio');
-
-  const [radio, setRadio] = useState(radioFromLS ? +radioFromLS : 1);
-
+  const [radio, setRadio] = useState(1);
+  
   function handleRadio(event) {
     setRadio(+event.target.value);
   }
-
+  
   useEffect(() => {
     localStorage.setItem('radio', radio);
   }, [radio]);
 
-  const participantsFromLS = localStorage.getItem('participants');
+  useEffect(() => {
+    const radioFromLS = localStorage.getItem('radio');
+    if (radioFromLS) {
+      setRadio(radioFromLS);
+    }
+    const participantsFromLS = localStorage.getItem('participants');
+    if (participantsFromLS) {
+      dispatch({ type: 'add', payload: JSON.parse(participantsFromLS) });
+    }
+  }, []);
 
   const initialState = {
     pick: '',
-    participants: participantsFromLS ? JSON.parse(participantsFromLS) : []
+    participants: []
   };
   function reducer(state, action) {
     switch (action.type) {
@@ -71,19 +91,6 @@ function App() {
     const participantsString = JSON.stringify(state.participants);
     localStorage.setItem('participants', participantsString);
   }, [state]);
-
-  function calcSum(n, order) {
-    switch (order) {
-      case 1:
-        return n * (n + 1) / 2;
-      case 2:
-        return n * (n + 1) * (2 * n + 1) / 6;
-      case 3:
-        return (n * (n + 1) / 2) ** 2;
-      default:
-        throw new Error();
-    }
-  }
 
   function addProbToParticipants() {
     const maxIndex = state.participants.length - 1;
