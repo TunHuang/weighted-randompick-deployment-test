@@ -27,7 +27,10 @@ function App() {
     setChecked(checked => !checked);
   }
 
-  const [radio, setRadio] = useState(1);
+  const [radio, setRadio] = useState(() => {
+    const radioFromLS = localStorage.getItem('radio');
+    return radioFromLS ? +radioFromLS : 1;
+  });
   
   function handleRadio(event) {
     setRadio(+event.target.value);
@@ -38,10 +41,6 @@ function App() {
   }, [radio]);
 
   useEffect(() => {
-    const radioFromLS = localStorage.getItem('radio');
-    if (radioFromLS) {
-      setRadio(radioFromLS);
-    }
     const participantsFromLS = localStorage.getItem('participants');
     if (participantsFromLS) {
       dispatch({ type: 'add', payload: JSON.parse(participantsFromLS) });
