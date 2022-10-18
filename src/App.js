@@ -14,6 +14,40 @@ function calcSum(n, order) {
   }
 }
 
+function reducer(state, action) {
+  switch (action.type) {
+    case 'add':
+      return { ...state, participants: [...state.participants, ...action.payload] };
+    case 'clear':
+      return { pick: '', participants: [] };
+    case 'pick':
+      const maxIndex = state.participants.length - 1;
+      const indexSum = calcSum(maxIndex, action.radio);
+      let randomFromSum = Math.floor(Math.random() * indexSum) + 1;
+      let i = 0;
+      while (randomFromSum > 0) {
+        i++;
+        randomFromSum -= i ** action.radio;
+      }
+      const newPick = state.participants[i];
+      const newParticipants = [
+        newPick,
+        ...state.participants.slice(0, i),
+        ...state.participants.slice(i + 1)
+      ];
+      return { pick: newPick, participants: newParticipants };
+    case 'shuffle':
+      const shuffled = [...state.participants];
+      for (let i = shuffled.length - 1; i; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return { ...state, participants: shuffled };
+    default:
+      throw new Error();
+  }
+}
+
 function App() {
   const [textarea, setTextarea] = useState('');
 
@@ -40,39 +74,6 @@ function App() {
     localStorage.setItem('radio', radio);
   }, [radio]);
 
-  function reducer(state, action) {
-    switch (action.type) {
-      case 'add':
-        return { ...state, participants: [...state.participants, ...action.payload] };
-      case 'clear':
-        return { pick: '', participants: [] };
-      case 'pick':
-        const maxIndex = state.participants.length - 1;
-        const indexSum = calcSum(maxIndex, radio);
-        let randomFromSum = Math.floor(Math.random() * indexSum) + 1;
-        let i = 0;
-        while (randomFromSum > 0) {
-          i++;
-          randomFromSum -= i ** radio;
-        }
-        const newPick = state.participants[i];
-        const newParticipants = [
-          newPick,
-          ...state.participants.slice(0, i),
-          ...state.participants.slice(i + 1)
-        ];
-        return { pick: newPick, participants: newParticipants };
-      case 'shuffle':
-        const shuffled = [...state.participants];
-        for (let i = shuffled.length - 1; i; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-        return { ...state, participants: shuffled };
-      default:
-        throw new Error();
-    }
-  }
   const [state, dispatch] = useReducer(reducer, null, () => {
     const participantsFromLS = localStorage.getItem('participants');
     return participantsFromLS
@@ -100,6 +101,8 @@ function App() {
       const newParticipants = textarea.split(',').map(item => item.trim());
       setTextarea('');
       dispatch({ type: text, payload: newParticipants });
+    } else if (text === 'pick') {
+      dispatch({ type: text, radio: radio });
     } else {
       dispatch({ type: text });
     }
