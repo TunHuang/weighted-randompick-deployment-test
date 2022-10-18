@@ -1,14 +1,14 @@
 import './App.css';
-import { useReducer, useState, useEffect } from 'react';
+import { useReducer, useState, useEffect, useRef } from 'react';
 
 function calcSum(n, order) {
   switch (order) {
     case 1:
-      return n * (n + 1) / 2;
+      return (n * (n + 1)) / 2;
     case 2:
-      return n * (n + 1) * (2 * n + 1) / 6;
+      return (n * (n + 1) * (2 * n + 1)) / 6;
     case 3:
-      return (n * (n + 1) / 2) ** 2;
+      return ((n * (n + 1)) / 2) ** 2;
     default:
       throw new Error();
   }
@@ -16,8 +16,16 @@ function calcSum(n, order) {
 
 function reducer(state, action) {
   switch (action.type) {
+    case 'read_from_localStorage':
+      return {
+        ...state,
+        participants: [...action.participants],
+      }
     case 'add':
-      return { ...state, participants: [...state.participants, ...action.payload] };
+      return {
+        ...state,
+        participants: [...state.participants, ...action.participants],
+      };
     case 'clear':
       return { pick: '', participants: [] };
     case 'pick':
@@ -33,7 +41,7 @@ function reducer(state, action) {
       const newParticipants = [
         newPick,
         ...state.participants.slice(0, i),
-        ...state.participants.slice(i + 1)
+        ...state.participants.slice(i + 1),
       ];
       return { pick: newPick, participants: newParticipants };
     case 'shuffle':
@@ -58,49 +66,66 @@ function App() {
   const [checked, setChecked] = useState(false);
 
   function handleCheckbox() {
-    setChecked(checked => !checked);
+    setChecked((checked) => !checked);
   }
 
-  const [radio, setRadio] = useState(() => {
+  const [radio, setRadio] = useState(1);
+
+  useEffect(() => {
     const radioFromLS = localStorage.getItem('radio');
-    return radioFromLS ? +radioFromLS : 1;
-  });
-  
+    if (radioFromLS) {
+      setRadio(+radioFromLS);
+    }
+    const participantsFromLS = localStorage.getItem('participants');
+    if (participantsFromLS) {
+      dispatch({ type: 'read_from_localStorage', participants: JSON.parse(participantsFromLS) });
+    }
+  }, []);
+
   function handleRadio(event) {
     setRadio(+event.target.value);
   }
-  
+
+  const updateOnMountRadio = useRef(true);
   useEffect(() => {
-    localStorage.setItem('radio', radio);
+    if (updateOnMountRadio.current) {
+      updateOnMountRadio.current = false;
+    } else {
+      localStorage.setItem('radio', radio);
+    }
   }, [radio]);
 
-  const [state, dispatch] = useReducer(reducer, null, () => {
-    const participantsFromLS = localStorage.getItem('participants');
-    return participantsFromLS
-      ? { pick: '', participants: JSON.parse(participantsFromLS) }
-      : { pick: '', participants: [] };
-  });
+  const [state, dispatch] = useReducer(reducer, { pick: '', participants: [] });
 
+  const updateOnMountParticipants = useRef(true);
   useEffect(() => {
-    const participantsString = JSON.stringify(state.participants);
-    localStorage.setItem('participants', participantsString);
+    if (updateOnMountParticipants.current) {
+      updateOnMountParticipants.current = false;
+    } else {
+      const participantsString = JSON.stringify(state.participants);
+      localStorage.setItem('participants', participantsString);
+    }
   }, [state]);
 
   function addProbToParticipants() {
     const maxIndex = state.participants.length - 1;
     const indexSum = calcSum(maxIndex, radio);
-    const participantsWithProb = state.participants.map((participant, index) => {
-      return `${participant} ${(index ** radio / indexSum * 100).toFixed(2)}%`
-    });
+    const participantsWithProb = state.participants.map(
+      (participant, index) => {
+        return `${participant} ${((index ** radio / indexSum) * 100).toFixed(
+          2
+        )}%`;
+      }
+    );
     return participantsWithProb.join(', ');
   }
 
   function handleButtons(event) {
     const text = event.target.innerText.toLowerCase();
     if (text === 'add') {
-      const newParticipants = textarea.split(',').map(item => item.trim());
+      const newParticipants = textarea.split(',').map((item) => item.trim());
       setTextarea('');
-      dispatch({ type: text, payload: newParticipants });
+      dispatch({ type: text, participants: newParticipants });
     } else if (text === 'pick') {
       dispatch({ type: text, radio: radio });
     } else {
@@ -111,13 +136,16 @@ function App() {
   return (
     <div className="App">
       <h1>Not so random picker</h1>
-      <div className='queue'>
-        {state.participants.length === 0 ? 'Add some participants' :
-          checked ? addProbToParticipants() :
-            state.participants.join(', ')}
+      <div className="queue">
+        {state.participants.length === 0
+          ? 'Add some participants'
+          : checked
+          ? addProbToParticipants()
+          : state.participants.join(', ')}
       </div>
-      <div className='pick'>
-        <span>Pick: </span>{state.pick}
+      <div className="pick">
+        <span>Pick: </span>
+        {state.pick}
       </div>
       <div>
         <button onClick={handleButtons}>Clear</button>
@@ -131,36 +159,28 @@ function App() {
       <div onChange={handleRadio}>
         distribution:
         <label>
-          <input
-            type="radio"
-            name="dist"
-            value="1"
-            checked={radio === 1}
-          />
+          <input type="radio" name="dist" value="1" checked={radio === 1} />
           linear
         </label>
         <label>
-          <input
-            type="radio"
-            name="dist"
-            value="2"
-            checked={radio === 2}
-          />
+          <input type="radio" name="dist" value="2" checked={radio === 2} />
           quadratic
         </label>
         <label>
-          <input
-            type="radio"
-            name="dist"
-            value="3"
-            checked={radio === 3}
-          />
+          <input type="radio" name="dist" value="3" checked={radio === 3} />
           cubic
         </label>
       </div>
-      <textarea value={textarea} onChange={handleTextarea} placeholder='Add participants, seperated with commas' />
+      <textarea
+        value={textarea}
+        onChange={handleTextarea}
+        placeholder="Add participants, seperated with commas"
+      />
       <button onClick={handleButtons}>Add</button>
-      <p>Descriptions and source on <a href="https://github.com/TunHuang/weighted-random-picker">Github</a></p>
+      <p>
+        Descriptions and source on{' '}
+        <a href="https://github.com/TunHuang/weighted-random-picker">Github</a>
+      </p>
     </div>
   );
 }
